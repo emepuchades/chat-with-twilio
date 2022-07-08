@@ -1,5 +1,5 @@
 {
-  "name": "sdk-starter-node",
+  "name": "backend",
   "version": "1.0.0",
   "description": "Starter Server Application for Node.js",
   "main": "app.js",
