@@ -44,7 +44,7 @@ class Login extends React.Component {
                     style={styles.grid}
                     container
                     direction="column"
-                    justify="center"
+                    justifyContent="center"
                     alignItems="center">
                     <Card style={styles.card} elevation={10}>
                         <Grid item style={styles.gridItem}>

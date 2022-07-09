@@ -1,17 +1,5 @@
 import React from "react";
-import {
-    AppBar,
-    Backdrop,
-    CircularProgress,
-    Container,
-    CssBaseline,
-    Grid,
-    IconButton,
-    List,
-    TextField,
-    Toolbar,
-    Typography,
-} from "@material-ui/core";
+import {  AppBar, Backdrop, CircularProgress, Container, CssBaseline, Grid, IconButton, List, TextField, Toolbar, Typography,} from "@material-ui/core";
 import { Send } from "@material-ui/icons";
 import axios from "axios";
 import ChatItem from "./ChatItem";
@@ -24,13 +12,14 @@ class ChatScreen extends React.Component {
         this.state = {
             text: "",
             messages: [],
+            members: [],
             loading: false,
             channel: null,
         };
 
         this.scrollDiv = React.createRef();
     }
-    
+
     joinChannel = async (channel) => {
         if (channel.channelState.status !== "joined") {
             await channel.join();
@@ -70,6 +59,7 @@ class ChatScreen extends React.Component {
 
         if (!email || !room) {
             this.props.history.replace("/");
+            window.location.reload(true);
         }
 
         this.setState({ loading: true });
@@ -91,10 +81,11 @@ class ChatScreen extends React.Component {
             client.updateToken(token);
         });
         client.on("channelJoined", async (channel) => {
-            // getting list of all messages since this is an existing channel
             const messages = await channel.getMessages();
-            console.log('messages', messages)
             this.setState({ messages: messages.items || [] });
+
+            const membersChannel = await channel.getMembers()
+            this.setState({ members: membersChannel });
             this.scrollToBottom();
         });
 
@@ -129,13 +120,21 @@ class ChatScreen extends React.Component {
         }
     };
 
+    handleKeyPress = (event) => {
+        if(event.key === 'Enter'){
+          this.sendMessage()
+        } else {
+            console.log('typiiing')
+        }
+    }
+
     logout = () => {
         this.props.history.replace("/");
         window.location.reload(true);
     }
 
     render() {
-        const { loading, text, messages, channel } = this.state;
+        const { loading, text, messages, channel, members } = this.state;
         const { location } = this.props;
         const { state } = location || {};
         const { email, room } = state || {};
@@ -152,9 +151,19 @@ class ChatScreen extends React.Component {
                             {`Room: ${room}, User: ${email}`}
                         </Typography>
                     </Toolbar>
-                    <button onClick={()=>this.logout()}>Cerrar sesion</button>
+                    <button onClick={() => this.logout()}>Cerrar sesion</button>
 
                 </AppBar>
+                <Grid container direction="column" style={styles.mainGrid}>
+                    <Grid item style={styles.gridItemChatList} ref={this.scrollDiv}>
+                        <List dense={true}>
+                            {members &&
+                                members.map((members) =>
+                                    <p key={members.state.identity}>{members.state.identity}</p>
+                                )}
+                        </List>
+                    </Grid>
+                </Grid>
 
                 <CssBaseline />
 
@@ -175,16 +184,17 @@ class ChatScreen extends React.Component {
                         <Grid
                             container
                             direction="row"
-                            justify="center"
+                            justifyContent="center"
                             alignItems="center">
                             <Grid item style={styles.textFieldContainer}>
                                 <TextField
                                     required
                                     style={styles.textField}
+                                    onKeyPress={this.handleKeyPress}
                                     placeholder="Enter message"
                                     variant="outlined"
                                     multiline
-                                    rows={2}
+                                    minRows={2}
                                     value={text}
                                     disabled={!channel}
                                     onChange={(event) =>
@@ -210,14 +220,14 @@ class ChatScreen extends React.Component {
 }
 
 const styles = {
-  textField: { width: "100%", borderWidth: 0, borderColor: "transparent" },
-  textFieldContainer: { flex: 1, marginRight: 12 },
-  gridItem: { paddingTop: 12, paddingBottom: 12 },
-  gridItemChatList: { overflow: "auto", height: "70vh" },
-  gridItemMessage: { marginTop: 12, marginBottom: 12 },
-  sendButton: { backgroundColor: "#3f51b5" },
-  sendIcon: { color: "white" },
-  mainGrid: { paddingTop: 100, borderWidth: 1 },
+    textField: { width: "100%", borderWidth: 0, borderColor: "transparent" },
+    textFieldContainer: { flex: 1, marginRight: 12 },
+    gridItem: { paddingTop: 12, paddingBottom: 12 },
+    gridItemChatList: { overflow: "auto", height: "70vh" },
+    gridItemMessage: { marginTop: 12, marginBottom: 12 },
+    sendButton: { backgroundColor: "#3f51b5" },
+    sendIcon: { color: "white" },
+    mainGrid: { paddingTop: 100, borderWidth: 1 },
 };
 
 export default ChatScreen;
