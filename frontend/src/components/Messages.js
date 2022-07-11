@@ -1,7 +1,7 @@
 import React from "react";
 import { ListItem } from "@material-ui/core";
 
-class ChatItem extends React.Component {
+class Messages extends React.Component {
   render() {
     const { message, email } = this.props;
     const isOwnMessage = message.author === email;
@@ -37,4 +37,4 @@ const styles = {
   timestamp: { fontSize: 8, color: "white", textAlign: "right", paddingTop: 4 },
 };
 
-export default ChatItem;
+export default Messages;
