@@ -1,8 +1,9 @@
 import React from "react";
 import styled from 'styled-components'
 import Messages from "../components/Messages";
-import { getToken, logout } from '../utils/getToken';
-import { BiNavigation } from "react-icons/bi";
+import AllMembers from "../components/allMembers"
+import { getToken } from '../utils/getToken';
+import { BiNavigation, BiGroup } from "react-icons/bi";
 const Chat = require("twilio-chat");
 
 class ChatScreen extends React.Component {
@@ -129,22 +130,15 @@ class ChatScreen extends React.Component {
 
         return (
             loading ?
-                <p>Loading</p>
+                <div className="content-loader">
+                    <span className="loader"></span>
+                    <p>Loading</p>
+                </div>
                 :
                 <Container>
-                    <Members>
-                        <Title> Participantes
-                            {members &&
-                                members.map((members) =>
-                                    <p key={members.state.identity}>{members.state.identity}</p>
-                                )}
-                        </Title>
-                    </Members>
+                    <AllMembers members={members} room={room} />
                     <Block>
-                        <Room>
-                            <Title>{room}</Title>
-                        </Room>
-                        <ChatBlock ref={this.scrollDiv}>
+                        <ChatBlock className='scroll' ref={this.scrollDiv}>
                             {messages &&
                                 messages.map((message) =>
                                     <Messages
@@ -153,21 +147,28 @@ class ChatScreen extends React.Component {
                                         email={email} />
                                 )}
                         </ChatBlock>
-                        <Input
-                            required
-                            onKeyPress={this.handleKeyPress}
-                            placeholder="Enter message"
-                            minRows={2}
-                            value={text}
-                            disabled={!channel}
-                            onChange={(event) =>
-                                this.setState({ text: event.target.value })
-                            } />
-                        <Button
-                            onClick={this.sendMessage}
-                            disabled={!channel}>
-                            <BiNavigation className="icon-send" />
-                        </Button>
+                        <BlockAddMessage>
+                            <Button
+                                onClick={this.sendMessage}
+                                disabled={!channel}>
+                                <BiGroup className="icon-send" />
+                            </Button>
+                            <Input
+                                required
+                                onKeyPress={this.handleKeyPress}
+                                placeholder="Enter message"
+                                minRows={2}
+                                value={text}
+                                disabled={!channel}
+                                onChange={(event) =>
+                                    this.setState({ text: event.target.value })
+                                } />
+                            <Button
+                                onClick={this.sendMessage}
+                                disabled={!channel}>
+                                <BiNavigation className="icon-send" />
+                            </Button>
+                        </BlockAddMessage>
                     </Block>
                 </Container>
         )
@@ -178,58 +179,72 @@ class ChatScreen extends React.Component {
 const Container = styled.div`
     display: flex;
     align-items: flex-start;
-    height: 98vh;
-`
-const Members = styled.div`
-    display: inline-block;
-    position: relative;
-    background-color: #FAFBFD;
-    width: 20%;
-    height: 100%;
+    height: 97vh;
+    .icon-default {
+        margin-left: 30px;
+        width: 23px;
+        height: 37px;
+    }
 `
 const ChatBlock = styled.div`
     display: inline-block;
     position: relative;
     overflow: auto;
     width: 100%;
-    height: 92%;
-    background-color: #FFFFFF;
+    height: 90%;
+    background-color: #F2F6FC;
+    border-radius: 15px;
+    &.scroll::-webkit-scrollbar-track {
+        padding: 2px 0;
+        background-color: #FAFBFD;
+      }
+    
+    &.scroll::-webkit-scrollbar {
+        width: 4px;
+    }
+    &.scroll::-webkit-scrollbar-thumb {
+        border-radius: 20px;
+        box-shadow: inset 0 0 6px rgb(0 0 0 / 30%);
+        background-color: #C1C3C6;
+    }
 `
 const Input = styled.input`
     position: relative;
     border: 1px solid #F1F4FD;
+    margin: 0 auto;
     overflow: auto;
-    width: 100%;
-    height: 7.3%;
-    border-radius: 20px;
+    width: 92%;
+    height: 45px;
+    border-radius: 10px;
+    font-size: 15px;
+    align-content: center;
+    margin: 9px;
 `
 const Button = styled.button`
-    position: absolute;
-    bottom: 40px;
-    right: 40px;
-    .icon-send{
-        width: 23px;
-        height: 37px;
-    }
-    width: 38px;
     height: 40px;
-    border-radius: 50%;
-    background: #7B67F7;
+    margin: 11px;
+    width: 69px;
+
 `
 const Block = styled.div`
+    background-color: #F2F6FC;
     height: 100%;
-    width: 79.6%;
+    width: 80%;
+    border-radius: 15px;
 `
 const Title = styled.div`
-    margin: 25px;
+    margin-left: 20px;
 `
-const Room = styled.div`
-    position: fixed;
-    top: 0px;
-    z-index: 2;
-    background-color: white;
-    width: 92%;
+
+const BlockAddMessage = styled.div`
     height: 70px;
-    border-bottom: 1px solid #F1F4FD;
+    width: 92%;
+    background-color: #fbfcff;;
+    display: flex;
+    margin: 0 auto;
+    align-content: center;
+    padding: 0px 20px;
+}
 `
+
 export default ChatScreen;

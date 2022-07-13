@@ -11,10 +11,10 @@ class Messages extends React.Component {
         <div style={styles.author}>{message.author}</div>
         <div style={styles.container(isOwnMessage)}>
           {message.body}
-          <div style={styles.timestamp}>
+        </div>
+        <div style={styles.timestamp}>
             {new Date(message.dateCreated.toISOString()).toLocaleString()}
           </div>
-        </div>
       </ListItem>
     );
   }
@@ -29,12 +29,12 @@ const styles = {
     maxWidth: "75%",
     borderRadius: 12,
     padding: 16,
-    color: "white",
-    fontSize: 12,
-    backgroundColor: isOwnMessage ? "#054740" : "#262d31",
+    color: isOwnMessage ? "white" : "black",
+    fontSize: 14,
+    backgroundColor: isOwnMessage ? "#1A233B" : "white",
   }),
-  author: { fontSize: 10, color: "gray" },
-  timestamp: { fontSize: 8, color: "white", textAlign: "right", paddingTop: 4 },
+  author: { fontSize: 14, color: "gray" },
+  timestamp: { fontSize: 10, color: "gray", textAlign: "right", paddingTop: 4 },
 };
 
 export default Messages;

@@ -5,8 +5,40 @@
 }
 
 body {
-  margin: 0px;
+  margin: 10px;
   font-family: 'Fira Sans', sans-serif;
   font-size: 18px;
-  background-color: #F8F8F9;
+  background-color: #FFFFFF;
 }
+
+.content-loader{
+  margin: 0 auto;
+  display: relative;
+  align-content: center;
+}
+
+.loader {
+  color: #111111;
+  font-family: Consolas, Menlo, Monaco, monospace;
+  font-weight: bold;
+  font-size: 78px;
+  opacity: 0.8;
+}
+.loader:before {
+  content: "{";
+  display: inline-block;
+  animation: pulse 0.4s alternate infinite ease-in-out;
+}
+.loader:after {
+  content: "}";
+  display: inline-block;
+  animation: pulse 0.4s 0.3s alternate infinite ease-in-out;
+}
+
+@keyframes pulse {
+  to {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+}
+    
