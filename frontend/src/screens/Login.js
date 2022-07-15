@@ -1,13 +1,6 @@
 import React from "react";
-import {
-    Grid,
-    TextField,
-    Card,
-    AppBar,
-    Toolbar,
-    Typography,
-    Button,
-} from "@material-ui/core";
+import styled from 'styled-components'
+import imageLogo from '../assets/background-logo.jpg';
 
 class Login extends React.Component {
     constructor(props) {
@@ -18,11 +11,12 @@ class Login extends React.Component {
             room: "",
         };
     }
+
     login = () => {
         const { email, room } = this.state;
         if (email && room) {
             this.props.history.push("chat", { room, email });
-             window.location.reload(true);
+            window.location.reload(true);
         }
     }
     handleChange = (event) => {
@@ -32,67 +26,110 @@ class Login extends React.Component {
     render() {
         const { email, room } = this.state;
         return (
-            <>
-                <AppBar style={styles.header} elevation={10}>
-                    <Toolbar>
-                        <Typography variant="h6">
-                            Chat App with Twilio Programmable Chat and React
-                        </Typography>
-                    </Toolbar>
-                </AppBar>
-                <Grid
-                    style={styles.grid}
-                    container
-                    direction="column"
-                    justifyContent="center"
-                    alignItems="center">
-                    <Card style={styles.card} elevation={10}>
-                        <Grid item style={styles.gridItem}>
-                            <TextField
+            <Container>
+                <Logger>
+                    <CardLeft elevation={10}>
+                        Accede al chat
+                        <Block>
+                            <Text>Email/ usuario:</Text>
+                            <Input
                                 name="email"
                                 required
-                                style={styles.textField}
                                 label="Email address"
                                 placeholder="Enter email address"
                                 variant="outlined"
                                 type="email"
                                 value={email}
                                 onChange={this.handleChange} />
-                        </Grid>
-                        <Grid item style={styles.gridItem}>
-                            <TextField
+                        </Block>
+                        <Block>
+                            <Text>Seleccione la sala:</Text>
+                            <Input
                                 name="room"
                                 required
-                                style={styles.textField}
                                 label="Room"
                                 placeholder="Enter room name"
                                 variant="outlined"
                                 value={room}
                                 onChange={this.handleChange} />
-                        </Grid>
-                        <Grid item style={styles.gridItem}>
+                        </Block>
+                        <Block>
                             <Button
                                 color="primary"
                                 variant="contained"
-                                style={styles.button}
                                 onClick={this.login}>
                                 Login
                             </Button>
-                        </Grid>
-                    </Card>
-                </Grid>
-            </>
+                        </Block>
+                    </CardLeft>
+                    <CardRight>
+                    </CardRight>
+                </Logger>
+            </Container>
         );
     }
 }
 
-const styles = {
-    header: {},
-    grid: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
-    card: { padding: 40 },
-    textField: { width: 300 },
-    gridItem: { paddingTop: 12, paddingBottom: 12 },
-    button: { width: 300 },
-  };
+const Container = styled.div`
+    display: flex;
+    text-align: center;
+    align-items: center;
+    align-content: center;
+    position: relative;
+    height: 98vh;  
+`
 
-  export default Login;
+const CardLeft = styled.div`
+    position: relative;
+    padding: 40px;
+    width: 400px;
+    height: 400px;
+    float: left;
+`
+
+const CardRight = styled.div`
+    position: relative;
+    display: flex;
+    align-content: center;
+    padding: 40px;
+    width: 400px;
+    height: 400px;
+    background-image: url(${imageLogo});
+    border-radius: 20px;
+`
+const Block = styled.div`
+    padding-top: 12px;
+    padding-bottom: 12px;
+`
+const Text = styled.div`
+    display: flex;
+    font-size: 16px;
+    font-weight: bold;
+`
+
+const Button = styled.button`
+    display: flex;
+    font-size: 18px;
+    cursor: pointer;
+    border: 0;
+    padding: 10px 40px;
+    background: #7297BF;
+    box-shadow: 0 10px 40px rgb(0 0 0 / 16%);
+    color: white;
+`
+const Logger = styled.div`
+    margin: auto;
+    box-shadow: rgb(0 0 0 / 35%) 0px 5px 15px;
+    border-radius: 20px;
+`
+const Input = styled.input`
+    display: flex;
+    flex-direction: column;
+    padding: 10px 10px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    width: 300px;
+    font-size: 16px;
+`
+export default Login;

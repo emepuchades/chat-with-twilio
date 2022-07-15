@@ -33,7 +33,7 @@ const styles = {
     fontSize: 14,
     backgroundColor: isOwnMessage ? "#1A233B" : "white",
   }),
-  author: { fontSize: 14, color: "gray" },
+  author: { fontSize: 16, color: "gray" },
   timestamp: { fontSize: 10, color: "gray", textAlign: "right", paddingTop: 4 },
 };
 

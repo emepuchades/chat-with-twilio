@@ -1,26 +1,32 @@
 import React from 'react'
 import styled from 'styled-components'
-import { BiNavigation, BiMessageSquareDetail, BiGroup } from "react-icons/bi";
+import { BiGroup } from "react-icons/bi";
+import { FcSms } from "react-icons/fc";
+import User from "./User"
 
 class AllMembers extends React.Component {
     render() {
-        const { members, room  } = this.props;
-
+        const { members, room } = this.props;
         return (
             <Members className='scroll'>
                 <Block>
                     <Room>
-                        {room}
+                        <FcSms className='icon' />
+                        <p>{room}</p>
                     </Room>
-
+                    <User />
                     <Title>
                         <BiGroup className="icon-default" />
-                        <h3>Participantes</h3>
+                        <Text>Participantes</Text>
                     </Title>
-                    {members &&
-                        members.map((members) =>
-                            <p key={members.state.identity}>{members.state.identity}</p>
-                        )}
+                    <List>
+                        {members &&
+                            members.map((members) =>
+                                <Member key={members.state.identity}>
+                                    {members.state.identity}
+                                </Member>
+                            )}
+                    </List>
                 </Block>
             </Members>
         )
@@ -55,13 +61,31 @@ const Block = styled.div`
 `
 const Room = styled.div`
     width: 85%;
-    margin-left: 50px;
+    margin: 30px 0px;
+    display: inline-flex;
+    align-content: center;
+    align-items: center;
+    .icon {
+        margin-right: 30px;
+    }
 `
+const Text = styled.div`
 
+`
+const List = styled.div`
+
+`
+const Member = styled.div`
+    margin: 20px 0px;
+    border-bottom: 1px solid #F2F6FC;
+    padding-bottom: 16px;
+    width: 80%;
+`
 const Title = styled.div`
     align-items: center;
     display: flex;
-    width: 70%;
+    width: 80%;
     border-bottom: 1px black solid;
+    margin: 40px 0px;
 `
 export default AllMembers

@@ -1,9 +1,11 @@
 import React from "react";
-import styled from 'styled-components'
+import styled from 'styled-components';
 import Messages from "../components/Messages";
 import AllMembers from "../components/allMembers"
 import { getToken } from '../utils/getToken';
 import { BiNavigation, BiGroup } from "react-icons/bi";
+import { RiSendPlane2Fill } from "react-icons/ri";
+
 const Chat = require("twilio-chat");
 
 class ChatScreen extends React.Component {
@@ -14,6 +16,7 @@ class ChatScreen extends React.Component {
             text: "",
             messages: [],
             members: [],
+            typing: false,
             loading: false,
             channel: null,
         };
@@ -117,8 +120,6 @@ class ChatScreen extends React.Component {
     handleKeyPress = (event) => {
         if (event.key === 'Enter') {
             this.sendMessage()
-        } else {
-            console.log('typiiing')
         }
     }
 
@@ -151,7 +152,7 @@ class ChatScreen extends React.Component {
                             <Button
                                 onClick={this.sendMessage}
                                 disabled={!channel}>
-                                <BiGroup className="icon-send" />
+                                <BiGroup className="icon-invite" />
                             </Button>
                             <Input
                                 required
@@ -166,7 +167,8 @@ class ChatScreen extends React.Component {
                             <Button
                                 onClick={this.sendMessage}
                                 disabled={!channel}>
-                                <BiNavigation className="icon-send" />
+                                <Text>ENVIAR</Text>
+                                <RiSendPlane2Fill className="icon-send" />
                             </Button>
                         </BlockAddMessage>
                     </Block>
@@ -181,7 +183,6 @@ const Container = styled.div`
     align-items: flex-start;
     height: 97vh;
     .icon-default {
-        margin-left: 30px;
         width: 23px;
         height: 37px;
     }
@@ -221,10 +222,15 @@ const Input = styled.input`
     margin: 9px;
 `
 const Button = styled.button`
+    display: flex;
+    align-items: center;
+    border: none;
     height: 40px;
     margin: 11px;
-    width: 69px;
-
+    width: 125px;
+    background-color: #044BF5;
+    color: white;
+    border-radius: 10px;
 `
 const Block = styled.div`
     background-color: #F2F6FC;
@@ -232,10 +238,9 @@ const Block = styled.div`
     width: 80%;
     border-radius: 15px;
 `
-const Title = styled.div`
-    margin-left: 20px;
+const Text = styled.div`
+    padding: 15px;
 `
-
 const BlockAddMessage = styled.div`
     height: 70px;
     width: 92%;
@@ -244,7 +249,6 @@ const BlockAddMessage = styled.div`
     margin: 0 auto;
     align-content: center;
     padding: 0px 20px;
-}
 `
 
 export default ChatScreen;
