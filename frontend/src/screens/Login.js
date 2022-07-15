@@ -85,6 +85,7 @@ const CardLeft = styled.div`
     width: 400px;
     height: 400px;
     float: left;
+    background-color: white;
 `
 
 const CardRight = styled.div`
