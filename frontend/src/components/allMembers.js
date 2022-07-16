@@ -6,7 +6,7 @@ import User from "./User"
 
 class AllMembers extends React.Component {
     render() {
-        const { members, room } = this.props;
+        const { members, room, email, typing, userInfo} = this.props;
         return (
             <Members className='scroll'>
                 <Block>
@@ -14,7 +14,7 @@ class AllMembers extends React.Component {
                         <FcSms className='icon' />
                         <p>{room}</p>
                     </Room>
-                    <User />
+                    <User email={email} userInfo={userInfo}/>
                     <Title>
                         <BiGroup className="icon-default" />
                         <Text>Participantes</Text>
@@ -23,7 +23,8 @@ class AllMembers extends React.Component {
                         {members &&
                             members.map((members) =>
                                 <Member key={members.state.identity}>
-                                    {members.state.identity}
+                                    <MemberName>{members.state.identity}</MemberName>
+                                     { members.state.identity === email ? typing ? <Typing>Escribiendo...</Typing> : null : null}
                                 </Member>
                             )}
                     </List>
@@ -54,10 +55,19 @@ const Members = styled.div`
         box-shadow: inset 0 0 6px rgb(0 0 0 / 30%);
         background-color: #C1C3C6;
     }
+    @media (max-width: 1300px) {
+        display: none;
+    }
 `
 const Block = styled.div`
     width: 85%;
     margin-left: 50px;
+    @media (max-width: 1600px) {
+        margin-left: 30px;
+    }
+    @media (max-width: 1300px) {
+        margin-left: 10px;
+    }
 `
 const Room = styled.div`
     width: 85%;
@@ -70,16 +80,29 @@ const Room = styled.div`
     }
 `
 const Text = styled.div`
-
 `
 const List = styled.div`
 
+`
+const MemberName = styled.div`
+    position: relative;
+    float: left;
+`
+
+const Typing = styled.div`
+    display: flex;
+    color: grey;
+    font-size: 14px;
+    position: relative;
+    float: left;
+    margin-left: 60px;
 `
 const Member = styled.div`
     margin: 20px 0px;
     border-bottom: 1px solid #F2F6FC;
     padding-bottom: 16px;
     width: 80%;
+    height: 20px;
 `
 const Title = styled.div`
     align-items: center;

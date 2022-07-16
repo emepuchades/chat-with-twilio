@@ -1,14 +1,28 @@
 import React from 'react'
 import styled from 'styled-components';
+import { BiLogOut } from "react-icons/bi";
+const ADMIN = process.env.USER_ADMIN;
 
 
-function User() {
-  return (
-    <Block>
-        <Name> Rubius</Name>
-        <Rol> Admin</Rol>
-    </Block>
-  )
+class User extends React.Component {
+    render() {
+        const { email, userInfo } = this.props;
+        const roleSid = userInfo.state.roleSid;
+        console.log('userInfo', userInfo.state.roleSid)
+        return (
+            <Block>
+                <UserBlock>
+                    <Name> {email}</Name>
+                    <Rol> Rol: {roleSid === ADMIN ?
+                        <>Admin</> : <>User</>
+                    }</Rol>
+                </UserBlock>
+                <Login>
+                    <BiLogOut />
+                </Login>
+            </Block>
+        )
+    }
 }
 
 export default User
@@ -25,4 +39,14 @@ const Name = styled.div`
 `
 const Rol = styled.div`
     margin-left: 20px;
+`
+const UserBlock = styled.div`
+    position: relative;
+    float: left;
+    display: contents;
+`
+const Login = styled.div`
+    position: relative;
+    float: right;
+    display: inline-flex;
 `

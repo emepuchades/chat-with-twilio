@@ -3,8 +3,8 @@ import styled from 'styled-components';
 import Messages from "../components/Messages";
 import AllMembers from "../components/allMembers"
 import { getToken } from '../utils/getToken';
-import { BiNavigation, BiGroup } from "react-icons/bi";
-import { RiSendPlane2Fill } from "react-icons/ri";
+import { BiHappy } from "react-icons/bi";
+import { RiSendPlane2Fill, RiUserAddLine } from "react-icons/ri";
 
 const Chat = require("twilio-chat");
 
@@ -16,9 +16,11 @@ class ChatScreen extends React.Component {
             text: "",
             messages: [],
             members: [],
-            typing: false,
             loading: false,
             channel: null,
+            typing: false,
+            client: {},
+            userInfo: [],
         };
 
         this.scrollDiv = React.createRef();
@@ -43,6 +45,7 @@ class ChatScreen extends React.Component {
             throw new Error("No se pudo obtener el token, vuelva a cargar esta página");
         }
         const client = await Chat.Client.create(token);
+        this.setState({ client: client });
 
         client.on("tokenAboutToExpire", async () => {
             const token = await getToken(email);
@@ -59,122 +62,162 @@ class ChatScreen extends React.Component {
 
             const membersChannel = await channel.getMembers()
             this.setState({ members: membersChannel });
+
+            const user = await client.getUser(email)
+
+            membersChannel.map((member) => (
+                member.state.identity === user.state.identity ?
+                this.setState({ userInfo: member }) : null
+            ))
             this.scrollToBottom();
-        });
+    });
 
         try {
-            const channel = await client.getChannelByUniqueName(room);
-            this.joinChannel(channel);
-        } catch (err) {
-            try {
-                const channel = await client.createChannel({
-                    uniqueName: room,
-                    friendlyName: room,
-                });
-
-                this.joinChannel(channel);
-            } catch {
-                alert("tienes que ingresar con email y sala")
-                throw new Error("No se puede cargar el canal");
-            }
-        }
-    }
-
-    scrollToBottom = () => {
-        const scrollHeight = this.scrollDiv.current.scrollHeight;
-        const height = this.scrollDiv.current.clientHeight;
-        const maxScrollTop = scrollHeight - height;
-        this.scrollDiv.current.scrollTop = maxScrollTop > 0 ? maxScrollTop : 0;
-    };
-
-    joinChannel = async (channel) => {
-        if (channel.channelState.status !== "joined") {
-            await channel.join();
-        }
-        this.setState({
-            channel: channel,
-            loading: false
+    const channel = await client.getChannelByUniqueName(room);
+    this.joinChannel(channel);
+    console.log('chat creado2', await client.getUser(email))
+} catch (err) {
+    try {
+        const channel = await client.createChannel({
+            uniqueName: room,
+            friendlyName: room,
         });
-        channel.on("messageAdded", this.handleMessageAdded);
-        this.scrollToBottom();
-    };
 
-    sendMessage = () => {
-        const { text, channel } = this.state;
-        if (text) {
-            this.setState({ loading: true });
-            channel.sendMessage(String(text).trim());
-            this.setState({ text: "", loading: false });
-        }
-    };
-
-    handleMessageAdded = (message) => {
-        const { messages } = this.state;
-        this.setState({
-            messages: [...messages, message],
-        },
-            this.scrollToBottom
-        );
-    };
-
-    handleKeyPress = (event) => {
-        if (event.key === 'Enter') {
-            this.sendMessage()
-        }
+        this.joinChannel(channel);
+        console.log('chat cuando no esta creado3ghb')
+    } catch {
+        alert("Tienes que ingresar con email y sala")
+        throw new Error("No se puede cargar el canal");
+    }
+}
     }
 
-    render() {
-        const { loading, text, messages, channel, members } = this.state;
-        const { location } = this.props;
-        const { state } = location || {};
-        const { email, room } = state || {};
+scrollToBottom = () => {
+    const scrollHeight = this.scrollDiv.current.scrollHeight;
+    const height = this.scrollDiv.current.clientHeight;
+    const maxScrollTop = scrollHeight - height;
+    this.scrollDiv.current.scrollTop = maxScrollTop > 0 ? maxScrollTop : 0;
+};
 
-        return (
-            loading ?
-                <div className="content-loader">
-                    <span className="loader"></span>
-                    <p>Loading</p>
-                </div>
-                :
-                <Container>
-                    <AllMembers members={members} room={room} />
-                    <Block>
-                        <ChatBlock className='scroll' ref={this.scrollDiv}>
-                            {messages &&
-                                messages.map((message) =>
-                                    <Messages
-                                        key={message.index}
-                                        message={message}
-                                        email={email} />
-                                )}
-                        </ChatBlock>
-                        <BlockAddMessage>
-                            <Button
-                                onClick={this.sendMessage}
-                                disabled={!channel}>
-                                <BiGroup className="icon-invite" />
-                            </Button>
-                            <Input
-                                required
-                                onKeyPress={this.handleKeyPress}
-                                placeholder="Enter message"
-                                minRows={2}
-                                value={text}
-                                disabled={!channel}
-                                onChange={(event) =>
-                                    this.setState({ text: event.target.value })
-                                } />
-                            <Button
-                                onClick={this.sendMessage}
-                                disabled={!channel}>
-                                <Text>ENVIAR</Text>
-                                <RiSendPlane2Fill className="icon-send" />
-                            </Button>
-                        </BlockAddMessage>
-                    </Block>
-                </Container>
-        )
+joinChannel = async (channel) => {
+    if (channel.channelState.status !== "joined") {
+        await channel.join();
     }
+    this.setState({
+        channel: channel,
+        loading: false
+    });
+    channel.on("messageAdded", this.handleMessageAdded);
+    this.scrollToBottom();
+};
+
+sendMessage = () => {
+    const { text, channel } = this.state;
+    if (text) {
+        this.setState({ loading: true });
+        channel.sendMessage(String(text).trim());
+        this.setState({ text: "", loading: false });
+    }
+};
+
+handleMessageAdded = (message) => {
+    const { messages } = this.state;
+    this.setState({
+        messages: [...messages, message],
+    },
+        this.scrollToBottom
+    );
+};
+
+handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+        this.sendMessage()
+    } else {
+        this.setState({ typing: true })
+        setTimeout(() => this.setState({ typing: false }), 5000);
+    }
+}
+
+inviteUser = (event) => {
+    console.log('inviteUser')
+}
+showIcons = (event) => {
+    console.log('showIcons')
+}
+
+logout = async () => {
+    this.props.history.replace("/");
+    window.location.reload(true);
+}
+
+
+render() {
+    const { loading, text, messages, channel, members, typing, userInfo } = this.state;
+    const { location } = this.props;
+    const { state } = location || {};
+    const { email, room } = state || {};
+
+    return (
+        loading ?
+            <div className="content-loader">
+                <span className="loader"></span>
+                <p>Loading</p>
+            </div>
+            :
+            <Container>
+                <AllMembers
+                    members={members}
+                    room={room}
+                    email={email}
+                    typing={typing} 
+                    userInfo={userInfo}/>
+                <Block>
+                    <ChatBlock className='scroll' ref={this.scrollDiv}>
+                        {messages &&
+                            messages.map((message) =>
+                                <Messages
+                                    key={message.index}
+                                    message={message}
+                                    email={email} />
+                            )}
+                    </ChatBlock>
+                    <BlockAddMessage>
+                        <Button
+                            onClick={this.logout}
+                            disabled={!channel}
+                            className="invite-button"
+                        >
+                            <RiUserAddLine className="icon-invite" />
+                        </Button>
+
+                        <Input
+                            required
+                            onKeyPress={this.handleKeyPress}
+                            placeholder="Enter message"
+                            minRows={2}
+                            value={text}
+                            disabled={!channel}
+                            onChange={(event) =>
+                                this.setState({ text: event.target.value })
+                            } />
+                        <Button
+                            onClick={this.showIcons}
+                            disabled={!channel}
+                            className="invite-button"
+                        >
+                            <BiHappy className="icon-button" />
+                        </Button>
+                        <Button
+                            onClick={this.sendMessage}
+                            disabled={!channel}>
+                            <Text>ENVIAR</Text>
+                            <RiSendPlane2Fill className="icon-send" />
+                        </Button>
+                    </BlockAddMessage>
+                </Block>
+            </Container >
+    )
+}
 
 }
 
@@ -208,6 +251,9 @@ const ChatBlock = styled.div`
         box-shadow: inset 0 0 6px rgb(0 0 0 / 30%);
         background-color: #C1C3C6;
     }
+    @media (max-width: 1600px) {
+        height: 88%;
+    }
 `
 const Input = styled.input`
     position: relative;
@@ -231,6 +277,22 @@ const Button = styled.button`
     background-color: #044BF5;
     color: white;
     border-radius: 10px;
+    &.invite-button {
+        background-color: #fbfcff;
+        border: none;
+        width: 50px;
+
+    }
+    .icon-invite {
+        width: 25px;
+        height: 25px;
+        fill: black;
+    }
+    .icon-button {
+        width: 25px;
+        height: 25px;
+        fill: black;
+    }
 `
 const Block = styled.div`
     background-color: #F2F6FC;
@@ -244,7 +306,7 @@ const Text = styled.div`
 const BlockAddMessage = styled.div`
     height: 70px;
     width: 92%;
-    background-color: #fbfcff;;
+    background-color: #fbfcff;
     display: flex;
     margin: 0 auto;
     align-content: center;
