@@ -24,7 +24,6 @@ class AllMembers extends React.Component {
                             members.map((members) =>
                                 <Member key={members.state.identity}>
                                     <MemberName>{members.state.identity}</MemberName>
-                                     { members.state.identity === email ? typing ? <Typing>Escribiendo...</Typing> : null : null}
                                 </Member>
                             )}
                     </List>

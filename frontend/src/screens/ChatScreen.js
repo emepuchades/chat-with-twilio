@@ -1,163 +1,56 @@
-import React from "react";
+import React, { useState, useContext, useEffect } from 'react'
 import styled from 'styled-components';
 import Messages from "../components/Messages";
 import AllMembers from "../components/allMembers"
-import { getToken } from '../utils/getToken';
 import { BiHappy } from "react-icons/bi";
 import { RiSendPlane2Fill, RiUserAddLine } from "react-icons/ri";
+import { AppContext } from "../App";
 
-const Chat = require("twilio-chat");
+function ChatScreen() {
+    const {  client, setClient, messages, setMessages,
+    members, setMembers, loading, setLoading,
+    channel, setChannel, typing, setTyping,
+    userInfo, setUserInfo, room, email, getClient} = useContext(AppContext);
+    const [text, setText] = useState("");
+    const scrollDiv = React.createRef();
 
-class ChatScreen extends React.Component {
-    constructor(props) {
-        super(props);
+    useEffect(() => {
+          getClient()
+          console.log('emai chat screen', email)
+    }, []);
 
-        this.state = {
-            text: "",
-            messages: [],
-            members: [],
-            loading: false,
-            channel: null,
-            typing: false,
-            client: {},
-            userInfo: [],
-        };
-
-        this.scrollDiv = React.createRef();
-    }
-
-    componentDidMount = async () => {
-        const { location } = this.props;
-        const { state } = location || {};
-        const { email, room } = state || {};
-        let token = "";
-
-        if (!email || !room) {
-            this.props.history.replace("/");
-            window.location.reload(true);
+    function sendMessage() {
+        if (text) {
+            setLoading(true);
+            channel.sendMessage(String(text).trim());
+            setText("");
+            setLoading(false)
         }
-
-        this.setState({ loading: true });
-
-        try {
-            token = await getToken(email);
-        } catch {
-            throw new Error("No se pudo obtener el token, vuelva a cargar esta página");
+    };
+    
+    function handleKeyPress(event){
+        if (event.key === 'Enter') {
+            sendMessage()
+        } else {
+            setTyping(true)
+            setTimeout(() => setTyping({ typing: false }), 5000);
         }
-        const client = await Chat.Client.create(token);
-        this.setState({ client: client });
-
-        client.on("tokenAboutToExpire", async () => {
-            const token = await getToken(email);
-            client.updateToken(token);
-        });
-
-        client.on("tokenExpired", async () => {
-            const token = await getToken(email);
-            client.updateToken(token);
-        });
-        client.on("channelJoined", async (channel) => {
-            const messages = await channel.getMessages();
-            this.setState({ messages: messages.items || [] });
-
-            const membersChannel = await channel.getMembers()
-            this.setState({ members: membersChannel });
-
-            const user = await client.getUser(email)
-
-            membersChannel.map((member) => (
-                member.state.identity === user.state.identity ?
-                this.setState({ userInfo: member }) : null
-            ))
-            this.scrollToBottom();
-    });
-
-        try {
-    const channel = await client.getChannelByUniqueName(room);
-    this.joinChannel(channel);
-    console.log('chat creado2', await client.getUser(email))
-} catch (err) {
-    try {
-        const channel = await client.createChannel({
-            uniqueName: room,
-            friendlyName: room,
-        });
-
-        this.joinChannel(channel);
-        console.log('chat cuando no esta creado3ghb')
-    } catch {
-        alert("Tienes que ingresar con email y sala")
-        throw new Error("No se puede cargar el canal");
     }
-}
+    
+    function inviteUser(event) {
+        console.log('inviteUser')
     }
-
-scrollToBottom = () => {
-    const scrollHeight = this.scrollDiv.current.scrollHeight;
-    const height = this.scrollDiv.current.clientHeight;
-    const maxScrollTop = scrollHeight - height;
-    this.scrollDiv.current.scrollTop = maxScrollTop > 0 ? maxScrollTop : 0;
-};
-
-joinChannel = async (channel) => {
-    if (channel.channelState.status !== "joined") {
-        await channel.join();
+    function showIcons(event){
+        console.log('showIcons')
     }
-    this.setState({
-        channel: channel,
-        loading: false
-    });
-    channel.on("messageAdded", this.handleMessageAdded);
-    this.scrollToBottom();
-};
-
-sendMessage = () => {
-    const { text, channel } = this.state;
-    if (text) {
-        this.setState({ loading: true });
-        channel.sendMessage(String(text).trim());
-        this.setState({ text: "", loading: false });
+    
+    async function logout() {
+        this.props.history.replace("/");
+        window.location.reload(true);
     }
-};
-
-handleMessageAdded = (message) => {
-    const { messages } = this.state;
-    this.setState({
-        messages: [...messages, message],
-    },
-        this.scrollToBottom
-    );
-};
-
-handleKeyPress = (event) => {
-    if (event.key === 'Enter') {
-        this.sendMessage()
-    } else {
-        this.setState({ typing: true })
-        setTimeout(() => this.setState({ typing: false }), 5000);
-    }
-}
-
-inviteUser = (event) => {
-    console.log('inviteUser')
-}
-showIcons = (event) => {
-    console.log('showIcons')
-}
-
-logout = async () => {
-    this.props.history.replace("/");
-    window.location.reload(true);
-}
-
-
-render() {
-    const { loading, text, messages, channel, members, typing, userInfo } = this.state;
-    const { location } = this.props;
-    const { state } = location || {};
-    const { email, room } = state || {};
-
+    
     return (
+        
         loading ?
             <div className="content-loader">
                 <span className="loader"></span>
@@ -172,18 +65,12 @@ render() {
                     typing={typing} 
                     userInfo={userInfo}/>
                 <Block>
-                    <ChatBlock className='scroll' ref={this.scrollDiv}>
-                        {messages &&
-                            messages.map((message) =>
-                                <Messages
-                                    key={message.index}
-                                    message={message}
-                                    email={email} />
-                            )}
+                    <ChatBlock className='scroll' ref={scrollDiv}>
+
                     </ChatBlock>
                     <BlockAddMessage>
                         <Button
-                            onClick={this.logout}
+                            onClick={logout}
                             disabled={!channel}
                             className="invite-button"
                         >
@@ -192,23 +79,23 @@ render() {
 
                         <Input
                             required
-                            onKeyPress={this.handleKeyPress}
+                            onKeyPress={handleKeyPress}
                             placeholder="Enter message"
                             minRows={2}
                             value={text}
                             disabled={!channel}
                             onChange={(event) =>
-                                this.setState({ text: event.target.value })
+                                setText(event.target.value)
                             } />
                         <Button
-                            onClick={this.showIcons}
+                            onClick={() => showIcons()}
                             disabled={!channel}
                             className="invite-button"
                         >
                             <BiHappy className="icon-button" />
                         </Button>
                         <Button
-                            onClick={this.sendMessage}
+                            onClick={() => sendMessage()}
                             disabled={!channel}>
                             <Text>ENVIAR</Text>
                             <RiSendPlane2Fill className="icon-send" />
@@ -219,7 +106,6 @@ render() {
     )
 }
 
-}
 
 const Container = styled.div`
     display: flex;

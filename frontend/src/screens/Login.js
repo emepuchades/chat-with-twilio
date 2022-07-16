@@ -1,73 +1,62 @@
-import React from "react";
+import React, { useContext } from 'react'
 import styled from 'styled-components'
 import imageLogo from '../assets/background-logo.jpg';
+import { AppContext } from "../App";
+import { useHistory } from "react-router-dom";
 
-class Login extends React.Component {
-    constructor(props) {
-        super(props);
+function Login() {
+    const { email, setEmail, room, setRoom } = useContext(AppContext);
+    const history = useHistory();
 
-        this.state = {
-            email: "",
-            room: "",
-        };
-    }
-
-    login = () => {
-        const { email, room } = this.state;
+    function login() {
         if (email && room) {
-            this.props.history.push("chat", { room, email });
+            history.push("/chat");
             window.location.reload(true);
         }
     }
-    handleChange = (event) => {
-        this.setState({ [event.target.name]: event.target.value });
-    };
 
-    render() {
-        const { email, room } = this.state;
-        return (
-            <Container>
-                <Logger>
-                    <CardLeft elevation={10}>
-                        Accede al chat
-                        <Block>
-                            <Text>Email/ usuario:</Text>
-                            <Input
-                                name="email"
-                                required
-                                label="Email address"
-                                placeholder="Enter email address"
-                                variant="outlined"
-                                type="email"
-                                value={email}
-                                onChange={this.handleChange} />
-                        </Block>
-                        <Block>
-                            <Text>Seleccione la sala:</Text>
-                            <Input
-                                name="room"
-                                required
-                                label="Room"
-                                placeholder="Enter room name"
-                                variant="outlined"
-                                value={room}
-                                onChange={this.handleChange} />
-                        </Block>
-                        <Block>
-                            <Button
-                                color="primary"
-                                variant="contained"
-                                onClick={this.login}>
-                                Login
-                            </Button>
-                        </Block>
-                    </CardLeft>
-                    <CardRight>
-                    </CardRight>
-                </Logger>
-            </Container>
-        );
-    }
+    return (
+        <Container>
+            <Logger>
+                <CardLeft elevation={10}>
+                    Accede al chat
+                    <Block>
+                        <Text>Email/ usuario:</Text>
+                        <Input
+                            name="email"
+                            required
+                            label="Email address"
+                            placeholder="Enter email address"
+                            variant="outlined"
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)} />
+                    </Block>
+                    <Block>
+                        <Text>Seleccione la sala:</Text>
+                        <Input
+                            name="room"
+                            required
+                            label="Room"
+                            placeholder="Enter room name"
+                            variant="outlined"
+                            value={room}
+                            onChange={(e) => setRoom(e.target.value)} />
+                    </Block>
+                    <Block>
+                        <Button
+                            color="primary"
+                            variant="contained"
+                            onClick={() => login()}>
+                            Login
+                        </Button>
+                    </Block>
+                </CardLeft>
+                <CardRight>
+                </CardRight>
+            </Logger>
+        </Container>
+    );
 }
 
 const Container = styled.div`
