@@ -145,12 +145,6 @@ showIcons = (event) => {
     console.log('showIcons')
 }
 
-logout = async () => {
-    this.props.history.replace("/");
-    window.location.reload(true);
-}
-
-
 render() {
     const { loading, text, messages, channel, members, typing, userInfo } = this.state;
     const { location } = this.props;

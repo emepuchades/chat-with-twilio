@@ -3,19 +3,15 @@ import styled from 'styled-components';
 import { BiLogOut } from "react-icons/bi";
 const ADMIN = process.env.USER_ADMIN;
 
-
 class User extends React.Component {
     render() {
-        const { email, userInfo } = this.props;
-        const roleSid = userInfo.state.roleSid;
-        console.log('userInfo', userInfo.state.roleSid)
+        const { email } = this.props;
+
         return (
             <Block>
                 <UserBlock>
                     <Name> {email}</Name>
-                    <Rol> Rol: {roleSid === ADMIN ?
-                        <>Admin</> : <>User</>
-                    }</Rol>
+                    <Rol> Rol: User </Rol>
                 </UserBlock>
                 <Login>
                     <BiLogOut />
@@ -45,8 +41,9 @@ const UserBlock = styled.div`
     float: left;
     display: contents;
 `
-const Login = styled.div`
+const Login = styled.button`
     position: relative;
     float: right;
     display: inline-flex;
+    border: none;
 `

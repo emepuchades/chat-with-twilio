@@ -6,7 +6,7 @@ import User from "./User"
 
 class AllMembers extends React.Component {
     render() {
-        const { members, room, email, typing, userInfo} = this.props;
+        const { members, room, email, typing } = this.props;
         return (
             <Members className='scroll'>
                 <Block>
@@ -14,7 +14,7 @@ class AllMembers extends React.Component {
                         <FcSms className='icon' />
                         <p>{room}</p>
                     </Room>
-                    <User email={email} userInfo={userInfo}/>
+                    <User email={email}/>
                     <Title>
                         <BiGroup className="icon-default" />
                         <Text>Participantes</Text>
